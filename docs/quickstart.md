@@ -1,0 +1,145 @@
+# Quick Start Guide
+
+Deploy the AI Sandbox to a clean Linode GPU instance in minutes using automated scripts.
+
+## Overview
+
+This guide walks you through deploying the AI Sandbox stack to a fresh Linode GPU instance. The deployment process:
+1. Creates a new Linode GPU instance
+2. Installs NVIDIA drivers, Docker, and dependencies
+3. Configures and starts the AI services
+4. Validates that everything is working correctly
+
+## Prerequisites
+
+Before deploying to a clean Linode instance, ensure you have all required tools installed:
+
+```bash
+./scripts/check-prerequisites.sh
+```
+
+This verifies:
+- `linode-cli` is installed and configured
+- `jq` is installed (for JSON parsing)
+- `openssl` is installed (for password generation)
+- SSH keys are available (optional but recommended)
+
+**Install missing dependencies** (if needed):
+
+```bash
+# Install Linode CLI
+pip install linode-cli
+linode-cli configure  # Follow prompts to add your API token
+
+# Install jq (macOS)
+brew install jq
+
+# Install jq (Linux)
+sudo apt-get install jq
+```
+
+**Note**: GPU instances require GPU access to be enabled on your Linode account. If you don't see GPU instance types available, contact Linode Support to enable GPU access.
+
+## Deployment
+
+Deploy the AI Sandbox to a clean Linode GPU instance:
+
+**Interactive Mode** (recommended for first-time users):
+
+```bash
+./scripts/deploy-full.sh
+```
+
+The script will prompt you for:
+- Region (RTX4000-available regions):
+  - Chicago, US (us-ord)
+  - Frankfurt 2, DE (de-fra-2)
+  - Osaka, JP (jp-osa)
+  - Paris, FR (fr-par)
+  - Seattle, WA, US (us-sea)
+  - Singapore 2, SG (sg-sin-2)
+- RTX4000 instance size (e.g., Small, Medium, Large)
+- Model ID (optional, defaults to `mistralai/Mistral-7B-Instruct-v0.3`)
+
+**Non-Interactive Mode** (for automation):
+
+```bash
+./scripts/deploy-full.sh [instance-type] [region] [model-id]
+```
+
+Example:
+```bash
+./scripts/deploy-full.sh g2-gpu-rtx4000a1-s us-sea mistralai/Mistral-7B-Instruct-v0.3
+```
+
+### What Happens During Deployment
+
+1. **Instance Creation**: Creates a new Linode GPU instance with your configuration
+2. **StackScript Deployment**: Installs NVIDIA drivers, Docker, and dependencies
+3. **Service Initialization**: Waits for services to start (3-5 minutes)
+4. **Validation**: Verifies all services are running correctly
+
+### After Deployment
+
+You'll receive:
+- Instance ID and IP address
+- Root password (saved in `.instance-info-<ID>.json`)
+- Service URLs for Chat UI and API
+- SSH access command
+
+**Access your services:**
+- Chat UI: `http://YOUR_INSTANCE_IP:3000`
+- API Endpoint: `http://YOUR_INSTANCE_IP:8000/v1`
+
+**SSH into your instance:**
+```bash
+ssh root@YOUR_INSTANCE_IP
+```
+
+## Using the API
+
+The API is fully OpenAI-compatible. Example request:
+
+```bash
+curl http://YOUR_INSTANCE_IP:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "mistralai/Mistral-7B-Instruct-v0.3",
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }'
+```
+
+## Security Warning
+
+⚠️ **IMPORTANT**: By default, both services are exposed to the internet without authentication.
+
+**You must configure a Linode Cloud Firewall** to protect:
+- Port `3000` (UI)
+- Port `8000` (API)
+
+A security warning is displayed when you SSH into the instance.
+
+## Troubleshooting
+
+If services aren't ready after deployment:
+
+1. **Wait 3-5 minutes** - Services need time to initialize
+2. **Re-run validation**:
+   ```bash
+   ./scripts/validate-services.sh YOUR_INSTANCE_IP
+   ```
+3. **Check logs**:
+   ```bash
+   tail -f logs/deploy-*.log
+   ```
+4. **Check instance status**:
+   ```bash
+   linode-cli linodes view INSTANCE_ID
+   ```
+
+## Next Steps
+
+- [Maintenance Guide](../README.md#-maintenance) - Update services, change models, view logs
+- [Full Documentation](../README.md) - Complete feature list and technical details
+- [Scripts README](../scripts/README.md) - Detailed script documentation
+
