@@ -89,16 +89,32 @@ You'll receive:
 
 **Access your services:**
 - Chat UI: `http://YOUR_INSTANCE_IP:3000`
+  - **First-time access**: You'll need to create an account when you first visit the UI
+  - Create a username and password to get started
 - API Endpoint: `http://YOUR_INSTANCE_IP:8000/v1`
+  - **No authentication required**: The API is accessible without credentials (use firewall for security)
 
 **SSH into your instance:**
 ```bash
 ssh root@YOUR_INSTANCE_IP
 ```
 
+## Accessing the Chat UI
+
+When you first access the Chat UI at `http://YOUR_INSTANCE_IP:3000`, you'll need to create an account:
+
+1. **Open the URL** in your web browser
+2. **Create an account**: 
+   - Enter a username
+   - Create a password
+   - Click "Sign Up" or "Create Account"
+3. **Start chatting**: Once logged in, you can immediately start using the chat interface
+
+**Note**: This account is local to your instance and is used to manage your chat history and preferences.
+
 ## Using the API
 
-The API is fully OpenAI-compatible. Example request:
+The API is fully OpenAI-compatible and requires **no authentication**. You can start making requests immediately:
 
 ```bash
 curl http://YOUR_INSTANCE_IP:8000/v1/chat/completions \
@@ -108,6 +124,8 @@ curl http://YOUR_INSTANCE_IP:8000/v1/chat/completions \
     "messages": [{"role": "user", "content": "Hello!"}]
   }'
 ```
+
+**Note**: Since the API has no authentication, ensure you've configured a firewall to restrict access. See the [Security Guide](security.md) for details.
 
 ## Security Warning
 
